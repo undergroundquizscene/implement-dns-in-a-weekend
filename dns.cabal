@@ -17,5 +17,9 @@ executable dns
     build-depends:
       base ^>=4.16.3.0,
       bytestring,
+      lens,
+      network,
+      random,
+      text,
     hs-source-dirs:   app
     default-language: GHC2021
