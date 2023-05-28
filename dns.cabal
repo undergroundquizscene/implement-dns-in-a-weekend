@@ -16,10 +16,14 @@ executable dns
     main-is:          Main.hs
     build-depends:
       base ^>=4.16.3.0,
+      binary,
       bytestring,
+      containers,
+      generic-lens,
       lens,
       network,
       random,
       text,
+      transformers,
     hs-source-dirs:   app
     default-language: GHC2021
