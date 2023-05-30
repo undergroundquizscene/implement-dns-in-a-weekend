@@ -8,7 +8,7 @@ category:           Web
 build-type:         Simple
 
 common warnings
-    ghc-options: -Wall
+    ghc-options: -Wall -Werror -Wwarn=name-shadowing
 
 executable dns
     import:           warnings
