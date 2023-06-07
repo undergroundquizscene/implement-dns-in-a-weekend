@@ -8,6 +8,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Main where
 
+import Prelude hiding (map, length, tail)
+
 import Control.Category hiding ((.), id)
 import Control.Lens
 import Control.Monad
@@ -17,18 +19,18 @@ import Data.Binary.Get
 import Data.Binary.Put
 import Data.Bits hiding (bit)
 import Data.Bool
-import Data.ByteString as ByteString hiding (split)
+import Data.ByteString hiding (split, length, tail)
+import Data.ByteString qualified as ByteString
 import Data.Either
-import Data.Foldable
+import Data.Foldable hiding (length)
 import Data.Generics.Product (field)
 import Data.Int
-import Data.List as List
+import Data.List as List hiding (length, tail, map)
 import Data.Map.Strict as Map
 import Data.Maybe
-import Data.Text as Text
+import Data.Text as Text hiding (length, tail)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8')
 import Data.Text.Encoding.Error
-import Debug.Trace (trace)
 import GHC.Generics hiding (from, to)
 import GHC.Stack
 import Network.Socket
@@ -38,11 +40,7 @@ import System.Random
 main :: IO ()
 main = do
   gen <- getStdGen
-  (response, gen) <- resolve gen (domainFromText "google.com") A
-  print response
-  (response, gen) <- resolve gen (domainFromText "facebook.com") A
-  print response
-  (response, _) <- resolve gen (domainFromText "twitter.com") A
+  (response, _) <- resolve gen (domainFromText "www.facebook.com") A
   print response
 
 resolve :: RandomGen g => g -> DNSDomain -> RecordType -> IO (Either String (Word8, Word8, Word8, Word8), g)
@@ -53,7 +51,8 @@ resolve gen domain recordType = query gen (198, 41, 0, 4)
       putStrLn ("Querying " <> show ns <> " for " <> showDomain domain)
       (response, gen) <- sendQuery gen ns domain recordType
       case fmap firstAnswer response of
-        Right (Just x) -> return (Right x, gen)
+        Right (Just (Left ip)) -> return (Right ip, gen)
+        Right (Just (Right d)) -> resolve gen d A
         Right Nothing -> case fmap firstNameserverIp response of
           Right (Just DNSRecord{data_ = IPv4 ns}) -> query gen ns
           Right Nothing -> case fmap firstNameserver response of
@@ -69,11 +68,12 @@ resolve gen domain recordType = query gen (198, 41, 0, 4)
           _ -> return (Left "Unknown problem", gen)
         Left s -> return (Left ("DNS problem: " <> s), gen)
 
-firstAnswer :: DNSPacket -> Maybe (Word8, Word8, Word8, Word8)
+firstAnswer :: DNSPacket -> Maybe (Either (Word8, Word8, Word8, Word8) DNSDomain)
 firstAnswer DNSPacket{..} = do
-  DNSRecord{..} <- List.find (^. field @"type_" . to (== A)) answers
+  DNSRecord{..} <- List.find (^. field @"type_" . to (`List.elem` [A, CNAME])) answers
   case data_ of
-    IPv4 ns -> Just ns
+    IPv4 ns -> Just (Left ns)
+    DomainName n -> Just (Right n)
     _ -> Nothing
 
 firstNameserverIp :: DNSPacket -> Maybe DNSRecord
@@ -305,6 +305,7 @@ getDNSRecord = do
   ttl <- get
   getData_ <- case type_ of
     NS -> skip 2 *> (fmap DomainName <$> getDomain)
+    CNAME -> skip 2 *> (fmap DomainName <$> getDomain)
     A -> do
       addressLength <- get @Word16
       case addressLength of
@@ -329,6 +330,7 @@ putDNSRecord DNSRecord{..} = do
 data RecordType
   = A
   | NS
+  | CNAME
   | TXT
   | AAAA
   | UnrecognisedType Word16
@@ -337,15 +339,17 @@ data RecordType
 typeToWord16 :: RecordType -> Word16
 typeToWord16 = \case
   A -> 1
-  AAAA -> 28
   NS -> 2
+  CNAME -> 5
   TXT -> 16
+  AAAA -> 28
   UnrecognisedType n -> n
 
 typeFromWord16 :: Word16 -> RecordType
 typeFromWord16 = \case
   1 -> A
   2 -> NS
+  5 -> CNAME
   16 -> TXT
   28 -> AAAA
   n -> UnrecognisedType n
