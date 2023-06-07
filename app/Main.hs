@@ -28,6 +28,7 @@ import Data.Maybe
 import Data.Text as Text
 import Data.Text.Encoding (encodeUtf8, decodeUtf8')
 import Data.Text.Encoding.Error
+import Debug.Trace (trace)
 import GHC.Generics hiding (from, to)
 import GHC.Stack
 import Network.Socket
@@ -37,38 +38,55 @@ import System.Random
 main :: IO ()
 main = do
   gen <- getStdGen
-  (response, gen) <- resolve gen "google.com" A
+  (response, gen) <- resolve gen (domainFromText "google.com") A
   print response
-  (response, gen) <- resolve gen "facebook.com" A
+  (response, gen) <- resolve gen (domainFromText "facebook.com") A
   print response
-  (response, _) <- resolve gen "twitter.com" A
+  (response, _) <- resolve gen (domainFromText "twitter.com") A
   print response
 
-resolve :: RandomGen g => g -> Text -> RecordType -> IO (Either String DNSRecord, g)
+resolve :: RandomGen g => g -> DNSDomain -> RecordType -> IO (Either String (Word8, Word8, Word8, Word8), g)
 resolve gen domain recordType = query gen (198, 41, 0, 4)
   where
-    query :: RandomGen g => g -> (Word8, Word8, Word8, Word8) -> IO (Either String DNSRecord, g)
+    query :: RandomGen g => g -> (Word8, Word8, Word8, Word8) -> IO (Either String (Word8, Word8, Word8, Word8), g)
     query gen ns = do
-      putStrLn ("Querying " <> show ns <> " for " <> show domain)
+      putStrLn ("Querying " <> show ns <> " for " <> showDomain domain)
       (response, gen) <- sendQuery gen ns domain recordType
       case fmap firstAnswer response of
         Right (Just x) -> return (Right x, gen)
         Right Nothing -> case fmap firstNameserverIp response of
           Right (Just DNSRecord{data_ = IPv4 ns}) -> query gen ns
-          Right Nothing -> return (Left ("No answer or nameserver IP in: " <> show response), gen)
+          Right Nothing -> case fmap firstNameserver response of
+            Right Nothing -> return (Left ("No answer or nameserver in: " <> show response), gen)
+            Right (Just ns) -> do
+              (result, gen) <- resolve gen ns A
+              case result of
+                Left e -> return (Left ("Couldn’t resolve nameserver (" <> show ns
+                                        <> ") needed in resolving domain (" <> showDomain domain
+                                        <> ") due to error (" <> e <> ")"), gen)
+                Right record -> query gen record
+            _ -> return (Left "Unknown problem", gen)
           _ -> return (Left "Unknown problem", gen)
         Left s -> return (Left ("DNS problem: " <> s), gen)
 
-firstAnswer :: DNSPacket -> Maybe DNSRecord
-firstAnswer DNSPacket{..} = List.find (^. field @"type_" . to (== A)) answers
+firstAnswer :: DNSPacket -> Maybe (Word8, Word8, Word8, Word8)
+firstAnswer DNSPacket{..} = do
+  DNSRecord{..} <- List.find (^. field @"type_" . to (== A)) answers
+  case data_ of
+    IPv4 ns -> Just ns
+    _ -> Nothing
 
 firstNameserverIp :: DNSPacket -> Maybe DNSRecord
 firstNameserverIp DNSPacket{..} = List.find (^. field @"type_" . to (== A)) additionals
 
 firstNameserver :: DNSPacket -> Maybe DNSDomain
-firstNameserver DNSPacket{..} = fmap (^. field @"name") (List.find (^. field @"type_" . to (== A)) authorities)
+firstNameserver DNSPacket{..} = do
+  DNSRecord{..} <- List.find (^. field @"type_" . to (== NS)) authorities
+  case data_ of
+    DomainName n -> Just n
+    _ -> Nothing
 
-sendQuery :: RandomGen g => g -> (Word8, Word8, Word8, Word8) -> Text -> RecordType -> IO (Either String DNSPacket, g)
+sendQuery :: RandomGen g => g -> (Word8, Word8, Word8, Word8) -> DNSDomain -> RecordType -> IO (Either String DNSPacket, g)
 sendQuery gen server domain recordType = do
   s <- socket AF_INET Datagram defaultProtocol
   let (query, gen') = buildQuery gen domain recordType
@@ -188,6 +206,9 @@ domainToText (DNSDomain fs) = case partitionEithers fs of
   ([], ts) -> Right (mconcat (List.intersperse "." ts))
   t -> Left t
 
+showDomain :: DNSDomain -> String
+showDomain = either show Text.unpack . domainToText
+
 putUncompressedDomain :: DNSDomain -> Put
 putUncompressedDomain (DNSDomain fragments) = do
   let putFragment f =
@@ -254,10 +275,10 @@ instance (Binary l, Integral l) => Binary (LengthPrefixed l) where
     put l
     putByteString bs
 
-buildQuery :: RandomGen g => g -> Text -> RecordType -> (ByteString, g)
+buildQuery :: RandomGen g => g -> DNSDomain -> RecordType -> (ByteString, g)
 buildQuery gen domain recordType = let
   (queryID, gen') = genWord16 gen
-  question = DNSQuestion (domainFromText domain) recordType classIn
+  question = DNSQuestion domain recordType classIn
   header = DNSHeader
     { queryID
     , flags = DNSHeaderFlags { queryOrReply = Query, recursionDesired = False }
