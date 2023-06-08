@@ -3,3 +3,39 @@
 This is a Haskell version of the resolver from Julia Evans’ [[https://jvns.ca/blog/2023/05/12/introducing-implement-dns-in-a-weekend/][Implement DNS in a
 Weekend]], which guide I thoroughly enjoyed reading and which code I thoroughly
 enjoyed writing.
+
+* Running
+
+To run the code, you can use [[https://nixos.org/download.html][Nix]].
+
+First install ~cabal2nix~:
+
+#+begin_src sh
+  nix-env -iA nixpkgs.cabal2nix
+#+end_src
+
+You may also need ~cabal-install~ or ~ghc~ (try without first, I can’t remember
+if I needed them, and it definitely feels like you shouldn’t need to install GHC
+like this):
+
+#+begin_src sh
+  nix-env -iA nixpkgs.cabal-install nixpkgs.ghc
+#+end_src
+
+Then use ~cabal2nix~ to create ~dns.nix~:
+
+#+begin_src sh
+  cabal2nix . > dns.nix
+#+end_src
+
+Enter a nix shell:
+
+#+begin_src sh
+  nix-shell
+#+end_src
+
+And run it with ~cabal~:
+
+#+begin_src sh
+  cabal run
+#+end_src
