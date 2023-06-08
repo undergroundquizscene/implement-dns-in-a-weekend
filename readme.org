@@ -1,1 +1,5 @@
 #+title: Implement DNS in a Weekend
+
+This is a Haskell version of the resolver from Julia Evans’ [[https://jvns.ca/blog/2023/05/12/introducing-implement-dns-in-a-weekend/][Implement DNS in a
+Weekend]], which guide I thoroughly enjoyed reading and which code I thoroughly
+enjoyed writing.
