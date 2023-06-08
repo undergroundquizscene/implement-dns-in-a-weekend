@@ -39,3 +39,5 @@ And run it with ~cabal~:
 #+begin_src sh
   cabal run
 #+end_src
+
+(You could presumably also run this with ~cabal~ without Nix, but I haven’t done that in a while and don’t know the details.)
