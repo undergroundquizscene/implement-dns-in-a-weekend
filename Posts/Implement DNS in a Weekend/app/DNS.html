@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-06-16 Fri 14:42 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>&lrm;</title>
+<meta name="author" content="Emily Bourke" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7f49ea8">1. Part 1: Build a DNS Query</a>
+<ul>
+<li><a href="#orgd875e39">1.1. 1.1: DNSHeader and DNSQuestion Types</a></li>
+</ul>
+</li>
+<li><a href="#orge974fd9">2. Main file</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7f49ea8" class="outline-2">
+<h2 id="org7f49ea8"><span class="section-number-2">1.</span> Part 1: Build a DNS Query</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-orgd875e39" class="outline-3">
+<h3 id="orgd875e39"><span class="section-number-3">1.1.</span> 1.1: DNSHeader and DNSQuestion Types</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+My <code>DNSHeader</code> and <code>DNSQuestion</code> types are slightly different – I’ve used <code>Word16s</code> in place of <code>ints</code> as the values can only be positive, and added more specific types for a few of the fields.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell" id="orga0a0b19"><span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSHeader</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeader</span>
+  { queryID <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , flags <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSHeaderFlags</span>
+  , numQuestions <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAnswers <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAuthorities <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAdditionals <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-haskell" id="orgd33b224"><span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSQuestion</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSQuestion</span>
+  { name <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span>
+  , type_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordType</span>
+  , class_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+</pre>
+</div>
+
+<p>
+For the <code>DNSHeaderFlags</code>, I modelled the flags I needed and ignored the rest.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell" id="orgea0c65d"><span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSHeaderFlags</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeaderFlags</span>
+  { queryOrReply <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">QueryOrReply</span>
+  , recursionDesired <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Bool</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+</pre>
+</div>
+
+<p>
+Using an explicit sum type for <code>QueryOrReply</code> (rather than a <code>Boolean</code>) made it easier for me to remember which value corresponded to 0 and which to 1.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell" id="orgb1235a0"><span style="color: #0000FF;">data</span> <span style="color: #6434A3;">QueryOrReply</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">Query</span> <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">Reply</span> <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge974fd9" class="outline-2">
+<h2 id="orge974fd9"><span class="section-number-2">2.</span> Main file</h2>
+<div class="outline-text-2" id="text-2">
+<div class="org-src-container">
+<pre class="src src-haskell"><span style="color: #808080;">{-# LANGUAGE DataKinds #-}</span>
+<span style="color: #808080;">{-# LANGUAGE LambdaCase #-}</span>
+<span style="color: #808080;">{-# LANGUAGE TypeApplications #-}</span>
+<span style="color: #808080;">{-# LANGUAGE BlockArguments #-}</span>
+<span style="color: #808080;">{-# LANGUAGE DeriveGeneric #-}</span>
+<span style="color: #808080;">{-# LANGUAGE DuplicateRecordFields #-}</span>
+<span style="color: #808080;">{-# LANGUAGE OverloadedStrings #-}</span>
+<span style="color: #808080;">{-# LANGUAGE RecordWildCards #-}</span>
+<span style="color: #0000FF;">module</span> <span style="color: #6434A3;">Main</span> <span style="color: #0000FF;">where</span>
+
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Prelude</span> <span style="color: #0000FF;">hiding</span> (map, length, tail)
+
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Control.Category</span> <span style="color: #0000FF;">hiding</span> ((<span style="color: #BA36A5;">.</span>), id)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Control.Lens</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Control.Monad</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Control.Monad.Trans.State.Strict</span> <span style="color: #0000FF;">hiding</span> (put, get)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Binary</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Binary.Get</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Binary.Put</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Bits</span> <span style="color: #0000FF;">hiding</span> (bit)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Bool</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.ByteString</span> <span style="color: #0000FF;">hiding</span> (split, length, tail)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.ByteString</span> <span style="color: #0000FF;">qualified</span> <span style="color: #0000FF;">as</span> <span style="color: #6434A3;">ByteString</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Either</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Foldable</span> <span style="color: #0000FF;">hiding</span> (length)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Generics.Product</span> (field)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Int</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.List</span> <span style="color: #0000FF;">as</span> <span style="color: #6434A3;">List</span> <span style="color: #0000FF;">hiding</span> (length, tail, map)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Map.Strict</span> <span style="color: #0000FF;">as</span> <span style="color: #6434A3;">Map</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Maybe</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Text</span> <span style="color: #0000FF;">as</span> <span style="color: #6434A3;">Text</span> <span style="color: #0000FF;">hiding</span> (length, tail)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Text.Encoding</span> (encodeUtf8, decodeUtf8')
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Data.Text.Encoding.Error</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">GHC.Generics</span> <span style="color: #0000FF;">hiding</span> (from, to)
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">GHC.Stack</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Network.Socket</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">Network.Socket.ByteString</span>
+<span style="color: #0000FF;">import</span> <span style="color: #6434A3;">System.Random</span>
+
+<span style="color: #006699;">main</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">IO</span> <span style="color: #6434A3;">()</span>
+<span style="color: #006699;">main</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  gen <span style="color: #BA36A5;">&lt;-</span> getStdGen
+  (response, <span style="color: #0000FF;">_</span>) <span style="color: #BA36A5;">&lt;-</span> resolve gen (domainFromText <span style="color: #008000;">"www.facebook.com"</span>) <span style="color: #6434A3;">A</span>
+  print response
+
+<span style="color: #006699;">resolve</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RandomGen</span> g <span style="color: #BA36A5;">=&gt;</span> g <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">RecordType</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">IO</span> (<span style="color: #6434A3;">Either</span> <span style="color: #6434A3;">String</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>), g)
+<span style="color: #006699;">resolve</span> gen domain recordType <span style="color: #BA36A5;">=</span> query gen (<span style="color: #D0372D;">198</span>, <span style="color: #D0372D;">41</span>, <span style="color: #D0372D;">0</span>, <span style="color: #D0372D;">4</span>)
+  <span style="color: #0000FF;">where</span>
+    query <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RandomGen</span> g <span style="color: #BA36A5;">=&gt;</span> g <span style="color: #BA36A5;">-&gt;</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>) <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">IO</span> (<span style="color: #6434A3;">Either</span> <span style="color: #6434A3;">String</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>), g)
+    query gen ns <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+      putStrLn (<span style="color: #008000;">"Querying "</span> <span style="color: #BA36A5;">&lt;&gt;</span> show ns <span style="color: #BA36A5;">&lt;&gt;</span> <span style="color: #008000;">" for "</span> <span style="color: #BA36A5;">&lt;&gt;</span> showDomain domain)
+      (response, gen) <span style="color: #BA36A5;">&lt;-</span> sendQuery gen ns domain recordType
+      <span style="color: #0000FF;">case</span> fmap firstAnswer response <span style="color: #0000FF;">of</span>
+        <span style="color: #6434A3;">Right</span> (<span style="color: #6434A3;">Just</span> (<span style="color: #6434A3;">Left</span> ip)) <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Right</span> ip, gen)
+        <span style="color: #6434A3;">Right</span> (<span style="color: #6434A3;">Just</span> (<span style="color: #6434A3;">Right</span> d)) <span style="color: #BA36A5;">-&gt;</span> resolve gen d <span style="color: #6434A3;">A</span>
+        <span style="color: #6434A3;">Right</span> <span style="color: #6434A3;">Nothing</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #0000FF;">case</span> fmap firstNameserverIp response <span style="color: #0000FF;">of</span>
+          <span style="color: #6434A3;">Right</span> (<span style="color: #6434A3;">Just</span> <span style="color: #6434A3;">DNSRecord</span>{data_ <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">IPv4</span> ns}) <span style="color: #BA36A5;">-&gt;</span> query gen ns
+          <span style="color: #6434A3;">Right</span> <span style="color: #6434A3;">Nothing</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #0000FF;">case</span> fmap firstNameserver response <span style="color: #0000FF;">of</span>
+            <span style="color: #6434A3;">Right</span> <span style="color: #6434A3;">Nothing</span> <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Left</span> (<span style="color: #008000;">"No answer or nameserver in: "</span> <span style="color: #BA36A5;">&lt;&gt;</span> show response), gen)
+            <span style="color: #6434A3;">Right</span> (<span style="color: #6434A3;">Just</span> ns) <span style="color: #BA36A5;">-&gt;</span> <span style="color: #0000FF;">do</span>
+              (result, gen) <span style="color: #BA36A5;">&lt;-</span> resolve gen ns <span style="color: #6434A3;">A</span>
+              <span style="color: #0000FF;">case</span> result <span style="color: #0000FF;">of</span>
+                <span style="color: #6434A3;">Left</span> e <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Left</span> (<span style="color: #008000;">"Couldn&#8217;t resolve nameserver ("</span> <span style="color: #BA36A5;">&lt;&gt;</span> show ns
+                                        <span style="color: #BA36A5;">&lt;&gt;</span> <span style="color: #008000;">") needed in resolving domain ("</span> <span style="color: #BA36A5;">&lt;&gt;</span> showDomain domain
+                                        <span style="color: #BA36A5;">&lt;&gt;</span> <span style="color: #008000;">") due to error ("</span> <span style="color: #BA36A5;">&lt;&gt;</span> e <span style="color: #BA36A5;">&lt;&gt;</span> <span style="color: #008000;">")"</span>), gen)
+                <span style="color: #6434A3;">Right</span> record <span style="color: #BA36A5;">-&gt;</span> query gen record
+            <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Left</span> <span style="color: #008000;">"Unknown problem"</span>, gen)
+          <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Left</span> <span style="color: #008000;">"Unknown problem"</span>, gen)
+        <span style="color: #6434A3;">Left</span> s <span style="color: #BA36A5;">-&gt;</span> return (<span style="color: #6434A3;">Left</span> (<span style="color: #008000;">"DNS problem: "</span> <span style="color: #BA36A5;">&lt;&gt;</span> s), gen)
+
+<span style="color: #006699;">firstAnswer</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSPacket</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Maybe</span> (<span style="color: #6434A3;">Either</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>) <span style="color: #6434A3;">DNSDomain</span>)
+<span style="color: #006699;">firstAnswer</span> <span style="color: #6434A3;">DNSPacket</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  <span style="color: #6434A3;">DNSRecord</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">&lt;-</span> List.find (<span style="color: #BA36A5;">^.</span> field <span style="color: #BA36A5;">@</span><span style="color: #008000;">"type_"</span> <span style="color: #BA36A5;">.</span> to (<span style="color: #BA36A5;">`List.elem`</span> [<span style="color: #6434A3;">A</span>, <span style="color: #6434A3;">CNAME</span>])) answers
+  <span style="color: #0000FF;">case</span> data_ <span style="color: #0000FF;">of</span>
+    <span style="color: #6434A3;">IPv4</span> ns <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Just</span> (<span style="color: #6434A3;">Left</span> ns)
+    <span style="color: #6434A3;">DomainName</span> n <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Just</span> (<span style="color: #6434A3;">Right</span> n)
+    <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Nothing</span>
+
+<span style="color: #006699;">firstNameserverIp</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSPacket</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Maybe</span> <span style="color: #6434A3;">DNSRecord</span>
+<span style="color: #006699;">firstNameserverIp</span> <span style="color: #6434A3;">DNSPacket</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> List.find (<span style="color: #BA36A5;">^.</span> field <span style="color: #BA36A5;">@</span><span style="color: #008000;">"type_"</span> <span style="color: #BA36A5;">.</span> to (<span style="color: #BA36A5;">==</span> <span style="color: #6434A3;">A</span>)) additionals
+
+<span style="color: #006699;">firstNameserver</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSPacket</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Maybe</span> <span style="color: #6434A3;">DNSDomain</span>
+<span style="color: #006699;">firstNameserver</span> <span style="color: #6434A3;">DNSPacket</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  <span style="color: #6434A3;">DNSRecord</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">&lt;-</span> List.find (<span style="color: #BA36A5;">^.</span> field <span style="color: #BA36A5;">@</span><span style="color: #008000;">"type_"</span> <span style="color: #BA36A5;">.</span> to (<span style="color: #BA36A5;">==</span> <span style="color: #6434A3;">NS</span>)) authorities
+  <span style="color: #0000FF;">case</span> data_ <span style="color: #0000FF;">of</span>
+    <span style="color: #6434A3;">DomainName</span> n <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Just</span> n
+    <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Nothing</span>
+
+<span style="color: #006699;">sendQuery</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RandomGen</span> g <span style="color: #BA36A5;">=&gt;</span> g <span style="color: #BA36A5;">-&gt;</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>) <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">RecordType</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">IO</span> (<span style="color: #6434A3;">Either</span> <span style="color: #6434A3;">String</span> <span style="color: #6434A3;">DNSPacket</span>, g)
+<span style="color: #006699;">sendQuery</span> gen server domain recordType <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  s <span style="color: #BA36A5;">&lt;-</span> socket <span style="color: #6434A3;">AF_INET</span> <span style="color: #6434A3;">Datagram</span> defaultProtocol
+  <span style="color: #0000FF;">let</span> (query, gen') <span style="color: #BA36A5;">=</span> buildQuery gen domain recordType
+  connect s (<span style="color: #6434A3;">SockAddrInet</span> <span style="color: #D0372D;">53</span> (tupleToHostAddress server))
+  sendAll s query
+  response <span style="color: #BA36A5;">&lt;-</span> recv s <span style="color: #D0372D;">1024</span>
+  <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">&lt;-</span> close s
+  return (bimap (<span style="color: #BA36A5;">^.</span> _3) (<span style="color: #BA36A5;">^.</span> _3) (decodeOrFail <span style="color: #BA36A5;">@</span><span style="color: #6434A3;">DNSPacket</span> (fromStrict response)), gen')
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSPacket</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSPacket</span>
+  { header <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSHeader</span>
+  , questions <span style="color: #BA36A5;">::</span> [<span style="color: #6434A3;">DNSQuestion</span>]
+  , answers <span style="color: #BA36A5;">::</span> [<span style="color: #6434A3;">DNSRecord</span>]
+  , authorities <span style="color: #BA36A5;">::</span> [<span style="color: #6434A3;">DNSRecord</span>]
+  , additionals <span style="color: #BA36A5;">::</span> [<span style="color: #6434A3;">DNSRecord</span>]
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #0000FF;">instance</span> <span style="color: #6434A3;">Binary</span> <span style="color: #6434A3;">DNSPacket</span> <span style="color: #0000FF;">where</span>
+  get <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+    header<span style="color: #BA36A5;">@</span><span style="color: #6434A3;">DNSHeader</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">&lt;-</span> get
+    getQuestions <span style="color: #BA36A5;">&lt;-</span> replicateM (fromIntegral numQuestions) getDNSQuestion
+    getAnswers <span style="color: #BA36A5;">&lt;-</span> replicateM (fromIntegral numAnswers) getDNSRecord
+    getAuthorities <span style="color: #BA36A5;">&lt;-</span> replicateM (fromIntegral numAuthorities) getDNSRecord
+    getAdditionals <span style="color: #BA36A5;">&lt;-</span> replicateM (fromIntegral numAdditionals) getDNSRecord
+    return (fst (flip runState Map.empty <span style="color: #0000FF;">do</span>
+      questions <span style="color: #BA36A5;">&lt;-</span> sequence getQuestions
+      answers <span style="color: #BA36A5;">&lt;-</span> sequence getAnswers
+      authorities <span style="color: #BA36A5;">&lt;-</span> sequence getAuthorities
+      additionals <span style="color: #BA36A5;">&lt;-</span> sequence getAdditionals
+      return <span style="color: #6434A3;">DNSPacket</span>{<span style="color: #BA36A5;">..</span>}))
+
+  put <span style="color: #6434A3;">DNSPacket</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+    put header
+    foldMap putDNSQuestion questions
+    foldMap putDNSRecord answers
+    foldMap putDNSRecord authorities
+    foldMap putDNSRecord additionals
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSHeader</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeader</span>
+  { queryID <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , flags <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSHeaderFlags</span>
+  , numQuestions <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAnswers <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAuthorities <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , numAdditionals <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #0000FF;">instance</span> <span style="color: #6434A3;">Binary</span> <span style="color: #6434A3;">DNSHeader</span> <span style="color: #0000FF;">where</span>
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSHeaderFlags</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeaderFlags</span>
+  { queryOrReply <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">QueryOrReply</span>
+  , recursionDesired <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Bool</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #0000FF;">instance</span> <span style="color: #6434A3;">Binary</span> <span style="color: #6434A3;">DNSHeaderFlags</span> <span style="color: #0000FF;">where</span>
+  get <span style="color: #BA36A5;">=</span> (<span style="color: #BA36A5;">^.</span> from flagsAsWord16) <span style="color: #BA36A5;">&lt;$&gt;</span> get
+  put <span style="color: #BA36A5;">=</span> put <span style="color: #BA36A5;">.</span> (<span style="color: #BA36A5;">^.</span> flagsAsWord16)
+
+<span style="color: #006699;">flagsAsWord16</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Iso'</span> <span style="color: #6434A3;">DNSHeaderFlags</span> <span style="color: #6434A3;">Word16</span>
+<span style="color: #006699;">flagsAsWord16</span> <span style="color: #BA36A5;">=</span> iso
+  (<span style="color: #BA36A5;">\</span><span style="color: #6434A3;">DNSHeaderFlags</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">-&gt;</span>
+     zeroBits
+     <span style="color: #BA36A5;">&amp;</span> (queryOrReply' <span style="color: #BA36A5;">.~</span> queryOrReply)
+     <span style="color: #BA36A5;">.</span> (recursionDesired' <span style="color: #BA36A5;">.~</span> recursionDesired)
+   )
+  (<span style="color: #BA36A5;">\</span>w <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSHeaderFlags</span> (w <span style="color: #BA36A5;">^.</span> queryOrReply') (w <span style="color: #BA36A5;">^.</span> recursionDesired'))
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">QueryOrReply</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">Query</span> <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">Reply</span> <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>)
+
+<span style="color: #006699;">queryOrReply'</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Lens'</span> <span style="color: #6434A3;">Word16</span> <span style="color: #6434A3;">QueryOrReply</span>
+<span style="color: #006699;">queryOrReply'</span> <span style="color: #BA36A5;">=</span> bit <span style="color: #D0372D;">15</span> <span style="color: #BA36A5;">.</span> iso fromBool toBool
+  <span style="color: #0000FF;">where</span>
+    toBool <span style="color: #6434A3;">Query</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">False</span>
+    toBool <span style="color: #6434A3;">Reply</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">True</span>
+    fromBool <span style="color: #BA36A5;">=</span> bool <span style="color: #6434A3;">Query</span> <span style="color: #6434A3;">Reply</span>
+
+<span style="color: #006699;">recursionDesired'</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Lens'</span> <span style="color: #6434A3;">Word16</span> <span style="color: #6434A3;">Bool</span>
+<span style="color: #006699;">recursionDesired'</span> <span style="color: #BA36A5;">=</span> bit <span style="color: #D0372D;">8</span>
+
+<span style="color: #006699;">bit</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Bits</span> w <span style="color: #BA36A5;">=&gt;</span> <span style="color: #6434A3;">Int</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Lens'</span> w <span style="color: #6434A3;">Bool</span>
+<span style="color: #006699;">bit</span> n <span style="color: #BA36A5;">=</span> lens (flip testBit n) (<span style="color: #BA36A5;">\</span>word <span style="color: #BA36A5;">-&gt;</span> bool (clearBit word n) (setBit word n))
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSQuestion</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSQuestion</span>
+  { name <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span>
+  , type_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordType</span>
+  , class_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #006699;">putDNSQuestion</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSQuestion</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Put</span>
+<span style="color: #006699;">putDNSQuestion</span> <span style="color: #6434A3;">DNSQuestion</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  putUncompressedDomain name
+  putRecordType type_
+  put class_
+
+<span style="color: #006699;">getDNSQuestion</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Get</span> (<span style="color: #6434A3;">WithDomainCache</span> <span style="color: #6434A3;">DNSQuestion</span>)
+<span style="color: #006699;">getDNSQuestion</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  f <span style="color: #BA36A5;">&lt;-</span> getDomain
+  type_ <span style="color: #BA36A5;">&lt;-</span> getRecordType
+  class_ <span style="color: #BA36A5;">&lt;-</span> get
+  return <span style="color: #0000FF;">do</span>
+    name <span style="color: #BA36A5;">&lt;-</span> f
+    return <span style="color: #6434A3;">DNSQuestion</span>{<span style="color: #BA36A5;">..</span>}
+
+<span style="color: #006699;">classIn</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+<span style="color: #006699;">classIn</span> <span style="color: #BA36A5;">=</span> <span style="color: #D0372D;">1</span>
+
+<span style="color: #0000FF;">type</span> <span style="color: #6434A3;">WithDomainCache</span> a <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">State</span> (<span style="color: #6434A3;">Map</span> <span style="color: #6434A3;">Word16</span> <span style="color: #6434A3;">DNSDomain</span>) a
+
+<span style="color: #0000FF;">newtype</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSDomain</span> [<span style="color: #6434A3;">Either</span> <span style="color: #6434A3;">UnicodeException</span> <span style="color: #6434A3;">Text</span>]
+  <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #006699;">domainFromText</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Text</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSDomain</span>
+<span style="color: #006699;">domainFromText</span> <span style="color: #BA36A5;">=</span> Text.splitOn <span style="color: #008000;">"."</span> <span style="color: #BA36A5;">&gt;&gt;&gt;</span> (<span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">.</span> fmap <span style="color: #6434A3;">Right</span>)
+
+<span style="color: #006699;">domainToText</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Either</span> ([<span style="color: #6434A3;">UnicodeException</span>], [<span style="color: #6434A3;">Text</span>]) <span style="color: #6434A3;">Text</span>
+<span style="color: #006699;">domainToText</span> (<span style="color: #6434A3;">DNSDomain</span> fs) <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">case</span> partitionEithers fs <span style="color: #0000FF;">of</span>
+  (<span style="color: #6434A3;">[]</span>, ts) <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Right</span> (mconcat (List.intersperse <span style="color: #008000;">"."</span> ts))
+  t <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Left</span> t
+
+<span style="color: #006699;">showDomain</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">String</span>
+<span style="color: #006699;">showDomain</span> <span style="color: #BA36A5;">=</span> either show Text.unpack <span style="color: #BA36A5;">.</span> domainToText
+
+<span style="color: #006699;">putUncompressedDomain</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Put</span>
+<span style="color: #006699;">putUncompressedDomain</span> (<span style="color: #6434A3;">DNSDomain</span> fragments) <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  <span style="color: #0000FF;">let</span> putFragment f <span style="color: #BA36A5;">=</span>
+        put (lengthPrefixed <span style="color: #BA36A5;">@</span><span style="color: #6434A3;">Word8</span> (encodeUtf8 f))
+  <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">&lt;-</span> traverse putFragment (rights fragments)
+  put (zeroBits <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word8</span>)
+
+<span style="color: #006699;">getDomainFragment</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Get</span> (<span style="color: #6434A3;">Maybe</span> (<span style="color: #6434A3;">Int64</span>, <span style="color: #6434A3;">Either</span> <span style="color: #6434A3;">UnicodeException</span> <span style="color: #6434A3;">Text</span>))
+<span style="color: #006699;">getDomainFragment</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  location <span style="color: #BA36A5;">&lt;-</span> bytesRead
+  <span style="color: #6434A3;">LengthPrefixed</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">&lt;-</span> get <span style="color: #BA36A5;">@</span>(<span style="color: #6434A3;">LengthPrefixed</span> <span style="color: #6434A3;">Word8</span>)
+  <span style="color: #0000FF;">if</span> ByteString.null data_
+  <span style="color: #0000FF;">then</span> return <span style="color: #6434A3;">Nothing</span>
+  <span style="color: #0000FF;">else</span> return (<span style="color: #6434A3;">Just</span> (location, decodeUtf8' data_))
+
+<span style="color: #006699;">followDomainPointer</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">HasCallStack</span> <span style="color: #BA36A5;">=&gt;</span> <span style="color: #6434A3;">Get</span> (<span style="color: #6434A3;">Map</span> <span style="color: #6434A3;">Word16</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSDomain</span>)
+<span style="color: #006699;">followDomainPointer</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  w <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span> <span style="color: #BA36A5;">&lt;-</span> get
+  <span style="color: #0000FF;">let</span> pointer <span style="color: #BA36A5;">=</span> w <span style="color: #BA36A5;">`clearBit`</span> <span style="color: #D0372D;">15</span> <span style="color: #BA36A5;">`clearBit`</span> <span style="color: #D0372D;">14</span>
+  return (<span style="color: #BA36A5;">\</span>map <span style="color: #BA36A5;">-&gt;</span>
+            fromMaybe (error (<span style="color: #008000;">"Couldn't find location "</span> <span style="color: #BA36A5;">&lt;&gt;</span> show pointer <span style="color: #BA36A5;">&lt;&gt;</span> <span style="color: #008000;">" in domain map: "</span> <span style="color: #BA36A5;">&lt;&gt;</span> show map))
+            (Map.lookup pointer map))
+
+<span style="color: #006699;">getDomain</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Get</span> (<span style="color: #6434A3;">WithDomainCache</span> <span style="color: #6434A3;">DNSDomain</span>)
+<span style="color: #006699;">getDomain</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  length <span style="color: #BA36A5;">&lt;-</span> lookAhead getWord8
+  <span style="color: #0000FF;">if</span> testBit length <span style="color: #D0372D;">7</span> <span style="color: #BA36A5;">&amp;&amp;</span> testBit length <span style="color: #D0372D;">6</span>
+  <span style="color: #0000FF;">then</span> <span style="color: #0000FF;">do</span>
+    f <span style="color: #BA36A5;">&lt;-</span> followDomainPointer
+    return (state (<span style="color: #BA36A5;">\</span>m <span style="color: #BA36A5;">-&gt;</span> (f m, m)))
+  <span style="color: #0000FF;">else</span>
+    getDomainFragment <span style="color: #BA36A5;">&gt;&gt;=</span>
+      (<span style="color: #BA36A5;">\</span><span style="color: #0000FF;">case</span>
+        <span style="color: #6434A3;">Nothing</span> <span style="color: #BA36A5;">-&gt;</span> return (return (<span style="color: #6434A3;">DNSDomain</span> <span style="color: #6434A3;">[]</span>))
+        <span style="color: #6434A3;">Just</span> (location, fragment) <span style="color: #BA36A5;">-&gt;</span> <span style="color: #0000FF;">do</span>
+          f <span style="color: #BA36A5;">&lt;-</span> getDomain
+          return <span style="color: #0000FF;">do</span>
+            <span style="color: #6434A3;">DNSDomain</span> tail <span style="color: #BA36A5;">&lt;-</span> f
+            <span style="color: #0000FF;">let</span> newDomain <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSDomain</span> (fragment <span style="color: #6434A3;">:</span> tail)
+            modify (Map.insert (fromIntegral location) newDomain)
+            return newDomain)
+
+<span style="color: #006699;">lengthPrefixed</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Num</span> l <span style="color: #BA36A5;">=&gt;</span> <span style="color: #6434A3;">ByteString</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">LengthPrefixed</span> l
+<span style="color: #006699;">lengthPrefixed</span> data_ <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">let</span>
+  length <span style="color: #BA36A5;">=</span> fromIntegral (ByteString.length data_)
+  <span style="color: #0000FF;">in</span> <span style="color: #6434A3;">LengthPrefixed</span>{<span style="color: #BA36A5;">..</span>}
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">LengthPrefixed</span> l <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">LengthPrefixed</span>
+  { length <span style="color: #BA36A5;">::</span> l
+  , data_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">ByteString</span>
+  }
+  <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #0000FF;">instance</span> (<span style="color: #6434A3;">Binary</span> l, <span style="color: #6434A3;">Integral</span> l) <span style="color: #BA36A5;">=&gt;</span> <span style="color: #6434A3;">Binary</span> (<span style="color: #6434A3;">LengthPrefixed</span> l) <span style="color: #0000FF;">where</span>
+  get <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+    numberOfBytes <span style="color: #BA36A5;">&lt;-</span> get
+    <span style="color: #0000FF;">if</span> numberOfBytes <span style="color: #BA36A5;">==</span> <span style="color: #D0372D;">0</span>
+    <span style="color: #0000FF;">then</span> return (<span style="color: #6434A3;">LengthPrefixed</span> numberOfBytes <span style="color: #008000;">""</span>)
+    <span style="color: #0000FF;">else</span> <span style="color: #0000FF;">do</span>
+      bytes <span style="color: #BA36A5;">&lt;-</span> replicateM (fromIntegral numberOfBytes) get
+      return (<span style="color: #6434A3;">LengthPrefixed</span> numberOfBytes (ByteString.pack bytes))
+
+  put (<span style="color: #6434A3;">LengthPrefixed</span> l bs) <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+    put l
+    putByteString bs
+
+<span style="color: #006699;">buildQuery</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RandomGen</span> g <span style="color: #BA36A5;">=&gt;</span> g <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">DNSDomain</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">RecordType</span> <span style="color: #BA36A5;">-&gt;</span> (<span style="color: #6434A3;">ByteString</span>, g)
+<span style="color: #006699;">buildQuery</span> gen domain recordType <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">let</span>
+  (queryID, gen') <span style="color: #BA36A5;">=</span> genWord16 gen
+  question <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSQuestion</span> domain recordType classIn
+  header <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeader</span>
+    { queryID
+    , flags <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSHeaderFlags</span> { queryOrReply <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">Query</span>, recursionDesired <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">False</span> }
+    , numQuestions <span style="color: #BA36A5;">=</span> <span style="color: #D0372D;">1</span>
+    , numAnswers <span style="color: #BA36A5;">=</span> <span style="color: #D0372D;">0</span>
+    , numAuthorities <span style="color: #BA36A5;">=</span> <span style="color: #D0372D;">0</span>
+    , numAdditionals <span style="color: #BA36A5;">=</span> <span style="color: #D0372D;">0</span>
+    }
+  <span style="color: #0000FF;">in</span> (toStrict (encode header <span style="color: #BA36A5;">&lt;&gt;</span> runPut (putDNSQuestion question)), gen')
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">DNSRecord</span> <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">DNSRecord</span>
+  { name <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSDomain</span>
+  , type_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordType</span>
+  , class_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span>
+  , ttl <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Int32</span>
+  , data_ <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordData</span>
+  } <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #006699;">getDNSRecord</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Get</span> (<span style="color: #6434A3;">WithDomainCache</span> <span style="color: #6434A3;">DNSRecord</span>)
+<span style="color: #006699;">getDNSRecord</span> <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  getName <span style="color: #BA36A5;">&lt;-</span> getDomain
+  type_ <span style="color: #BA36A5;">&lt;-</span> getRecordType
+  class_ <span style="color: #BA36A5;">&lt;-</span> get
+  ttl <span style="color: #BA36A5;">&lt;-</span> get
+  getData_ <span style="color: #BA36A5;">&lt;-</span> <span style="color: #0000FF;">case</span> type_ <span style="color: #0000FF;">of</span>
+    <span style="color: #6434A3;">NS</span> <span style="color: #BA36A5;">-&gt;</span> skip <span style="color: #D0372D;">2</span> <span style="color: #BA36A5;">*&gt;</span> (fmap <span style="color: #6434A3;">DomainName</span> <span style="color: #BA36A5;">&lt;$&gt;</span> getDomain)
+    <span style="color: #6434A3;">CNAME</span> <span style="color: #BA36A5;">-&gt;</span> skip <span style="color: #D0372D;">2</span> <span style="color: #BA36A5;">*&gt;</span> (fmap <span style="color: #6434A3;">DomainName</span> <span style="color: #BA36A5;">&lt;$&gt;</span> getDomain)
+    <span style="color: #6434A3;">A</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #0000FF;">do</span>
+      addressLength <span style="color: #BA36A5;">&lt;-</span> get <span style="color: #BA36A5;">@</span><span style="color: #6434A3;">Word16</span>
+      <span style="color: #0000FF;">case</span> addressLength <span style="color: #0000FF;">of</span>
+        <span style="color: #D0372D;">4</span> <span style="color: #BA36A5;">-&gt;</span> (return <span style="color: #BA36A5;">.</span> <span style="color: #6434A3;">IPv4</span>) <span style="color: #BA36A5;">&lt;$&gt;</span> (<span style="color: #6434A3;">(,,,)</span> <span style="color: #BA36A5;">&lt;$&gt;</span> get <span style="color: #BA36A5;">&lt;*&gt;</span> get <span style="color: #BA36A5;">&lt;*&gt;</span> get <span style="color: #BA36A5;">&lt;*&gt;</span> get)
+        <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> error <span style="color: #008000;">"Unexpected IP Address length"</span>
+    <span style="color: #6434A3;">AAAA</span> <span style="color: #BA36A5;">-&gt;</span> (return <span style="color: #BA36A5;">.</span> <span style="color: #6434A3;">IPv6</span>) <span style="color: #BA36A5;">&lt;$&gt;</span> get
+    <span style="color: #6434A3;">TXT</span> <span style="color: #BA36A5;">-&gt;</span> (return <span style="color: #BA36A5;">.</span> <span style="color: #6434A3;">RawData</span>) <span style="color: #BA36A5;">&lt;$&gt;</span> get
+    <span style="color: #6434A3;">UnrecognisedType</span> <span style="color: #0000FF;">_</span> <span style="color: #BA36A5;">-&gt;</span> (return <span style="color: #BA36A5;">.</span> <span style="color: #6434A3;">RawData</span>) <span style="color: #BA36A5;">&lt;$&gt;</span> get
+  return <span style="color: #0000FF;">do</span>
+    name <span style="color: #BA36A5;">&lt;-</span> getName
+    data_ <span style="color: #BA36A5;">&lt;-</span> getData_
+    return <span style="color: #6434A3;">DNSRecord</span>{<span style="color: #BA36A5;">..</span>}
+
+<span style="color: #006699;">putDNSRecord</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">DNSRecord</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Put</span>
+<span style="color: #006699;">putDNSRecord</span> <span style="color: #6434A3;">DNSRecord</span>{<span style="color: #BA36A5;">..</span>} <span style="color: #BA36A5;">=</span> <span style="color: #0000FF;">do</span>
+  putUncompressedDomain name
+  putRecordType type_
+  put class_
+  put ttl
+  putRecordData data_
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">RecordType</span>
+  <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">A</span>
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">NS</span>
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">CNAME</span>
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">TXT</span>
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">AAAA</span>
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">UnrecognisedType</span> <span style="color: #6434A3;">Word16</span>
+  <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #006699;">typeToWord16</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordType</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Word16</span>
+<span style="color: #006699;">typeToWord16</span> <span style="color: #BA36A5;">=</span> <span style="color: #BA36A5;">\</span><span style="color: #0000FF;">case</span>
+  <span style="color: #6434A3;">A</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #D0372D;">1</span>
+  <span style="color: #6434A3;">NS</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #D0372D;">2</span>
+  <span style="color: #6434A3;">CNAME</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #D0372D;">5</span>
+  <span style="color: #6434A3;">TXT</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #D0372D;">16</span>
+  <span style="color: #6434A3;">AAAA</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #D0372D;">28</span>
+  <span style="color: #6434A3;">UnrecognisedType</span> n <span style="color: #BA36A5;">-&gt;</span> n
+
+<span style="color: #006699;">typeFromWord16</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Word16</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">RecordType</span>
+<span style="color: #006699;">typeFromWord16</span> <span style="color: #BA36A5;">=</span> <span style="color: #BA36A5;">\</span><span style="color: #0000FF;">case</span>
+  <span style="color: #D0372D;">1</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">A</span>
+  <span style="color: #D0372D;">2</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">NS</span>
+  <span style="color: #D0372D;">5</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">CNAME</span>
+  <span style="color: #D0372D;">16</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">TXT</span>
+  <span style="color: #D0372D;">28</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">AAAA</span>
+  n <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">UnrecognisedType</span> n
+
+<span style="color: #006699;">putRecordType</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordType</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Put</span>
+<span style="color: #006699;">putRecordType</span> <span style="color: #BA36A5;">=</span> put <span style="color: #BA36A5;">.</span> typeToWord16
+
+<span style="color: #006699;">getRecordType</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">Get</span> <span style="color: #6434A3;">RecordType</span>
+<span style="color: #006699;">getRecordType</span> <span style="color: #BA36A5;">=</span> typeFromWord16 <span style="color: #BA36A5;">&lt;$&gt;</span> get
+
+<span style="color: #0000FF;">data</span> <span style="color: #6434A3;">RecordData</span>
+  <span style="color: #BA36A5;">=</span> <span style="color: #6434A3;">RawData</span> (<span style="color: #6434A3;">LengthPrefixed</span> <span style="color: #6434A3;">Word16</span>)
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">IPv4</span> (<span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>, <span style="color: #6434A3;">Word8</span>)
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">IPv6</span> (<span style="color: #6434A3;">LengthPrefixed</span> <span style="color: #6434A3;">Word16</span>)
+  <span style="color: #BA36A5;">|</span> <span style="color: #6434A3;">DomainName</span> <span style="color: #6434A3;">DNSDomain</span>
+  <span style="color: #0000FF;">deriving</span> (<span style="color: #6434A3;">Show</span>, <span style="color: #6434A3;">Eq</span>, <span style="color: #6434A3;">Generic</span>)
+
+<span style="color: #006699;">putRecordData</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">RecordData</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">Put</span>
+<span style="color: #006699;">putRecordData</span> <span style="color: #BA36A5;">=</span> <span style="color: #BA36A5;">\</span><span style="color: #0000FF;">case</span>
+  <span style="color: #6434A3;">RawData</span> bs <span style="color: #BA36A5;">-&gt;</span> put bs
+  <span style="color: #6434A3;">IPv4</span> (n1, n2, n3, n4) <span style="color: #BA36A5;">-&gt;</span> traverse_ put [n1, n2, n3, n4]
+  <span style="color: #6434A3;">IPv6</span> bs <span style="color: #BA36A5;">-&gt;</span> put bs
+  <span style="color: #6434A3;">DomainName</span> n <span style="color: #BA36A5;">-&gt;</span> putUncompressedDomain n
+
+<span style="color: #006699;">showAsIPAddress</span> <span style="color: #BA36A5;">::</span> <span style="color: #6434A3;">ByteString</span> <span style="color: #BA36A5;">-&gt;</span> <span style="color: #6434A3;">String</span>
+<span style="color: #006699;">showAsIPAddress</span> bs <span style="color: #BA36A5;">=</span>
+  mconcat (List.intersperse <span style="color: #008000;">"."</span> (fmap show (ByteString.unpack bs)))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Emily Bourke</p>
+<p class="date">Created: 2023-06-16 Fri 14:42</p>
+</div>
+</body>
+</html>

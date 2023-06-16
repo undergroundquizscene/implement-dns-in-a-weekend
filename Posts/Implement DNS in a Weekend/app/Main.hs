@@ -239,7 +239,7 @@ getDomain = do
   then do
     f <- followDomainPointer
     return (state (\m -> (f m, m)))
-  else do
+  else
     getDomainFragment >>=
       (\case
         Nothing -> return (return (DNSDomain []))

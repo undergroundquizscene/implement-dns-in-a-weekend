@@ -1,0 +1,192 @@
+#+title: Blog
+
+I’m gonna try writing the code/configuration for the blog as an org file containing emacs lisp blocks, which I can then run or tangle as required.
+
+* Publishing
+
+I’ll probably want to use org publishing, and so will need to maintain a project definition that will fit in ~org-publish-project-alist~?
+
+#+begin_src emacs-lisp :results silent
+  (org-publish
+   '("blog"
+     :publishing-function publish-org-to-blog
+     :base-directory "Posts"
+     :publishing-directory "Output"
+     :preparation-function nil
+     :completion-function nil
+     :recursive t
+     :section-numbers nil
+     :html-html5-fancy t
+     :html-doctype "html5"
+     :html-container "section"
+     :html-preamble t
+     :html-preamble-format (("en" "Blog header will go here"))
+     :html-postamble t
+     :html-postamble-format (("en" "Blog footer will go here"))
+     :html-divs ((preamble "header" "preamble")
+                 (content "main" "content")
+                 (postamble "footer" "postamble")))
+   t)
+#+end_src
+
+* Custom backend
+
+I want to control the structure of the html output more than the options on the html backend allow me to. So I’ll make a new backend derived from the html backend.
+
+#+begin_src emacs-lisp :results silent
+  (org-export-define-derived-backend 'blog 'html
+    :translate-alist '((inner-template . org-blog-inner-template)
+                       (template . org-blog-template)))
+
+  (defun org-blog-template (contents info)
+    "Return complete document string after HTML conversion.
+    CONTENTS is the transcoded contents string.  INFO is a plist
+    holding export options."
+    (concat
+     (when (and (not (org-html-html5-p info)) (org-html-xhtml-p info))
+       (let* ((xml-declaration (plist-get info :html-xml-declaration))
+              (decl (or (and (stringp xml-declaration) xml-declaration)
+                        (cdr (assoc (plist-get info :html-extension)
+                                    xml-declaration))
+                        (cdr (assoc "html" xml-declaration))
+                        "")))
+         (when (not (or (not decl) (string= "" decl)))
+           (format "%s\n"
+                   (format decl
+                           (or (and org-html-coding-system
+                                    ;; FIXME: Use Emacs 22 style here, see `coding-system-get'.
+                                    (coding-system-get org-html-coding-system 'mime-charset))
+                               "iso-8859-1"))))))
+     (org-html-doctype info)
+     "\n"
+     (concat "<html"
+             (cond ((org-html-xhtml-p info)
+                    (format
+                     " xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"%s\" xml:lang=\"%s\""
+                     (plist-get info :language) (plist-get info :language)))
+                   ((org-html-html5-p info)
+                    (format " lang=\"%s\"" (plist-get info :language))))
+             ">\n")
+     "<head>\n"
+     (org-html--build-meta-info info)
+     (org-html--build-head info)
+     (org-html--build-mathjax-config info)
+     "</head>\n"
+     "<body>\n"
+     (let ((link-up (org-trim (plist-get info :html-link-up)))
+           (link-home (org-trim (plist-get info :html-link-home))))
+       (unless (and (string= link-up "") (string= link-home ""))
+         (format (plist-get info :html-home/up-format)
+                 (or link-up link-home)
+                 (or link-home link-up))))
+     ;; Preamble.
+     (org-html--build-pre/postamble 'preamble info)
+     ;; Document contents.
+     (let ((div (assq 'content (plist-get info :html-divs))))
+       (format "<%s id=\"%s\" class=\"%s\">\n"
+               (nth 1 div)
+               (nth 2 div)
+               (plist-get info :html-content-class)))
+     "<article>\n"
+     ;; Document title.
+     (when (plist-get info :with-title)
+       (let ((title (and (plist-get info :with-title)
+                         (plist-get info :title)))
+             (subtitle (plist-get info :subtitle))
+             (html5-fancy (org-html--html5-fancy-p info)))
+         (when title
+           (format
+            (if html5-fancy
+                "<header>\n<h1 class=\"title\">%s</h1>\n%s</header>"
+              "<h1 class=\"title\">%s%s</h1>\n")
+            (org-export-data title info)
+            (if subtitle
+                (format
+                 (if html5-fancy
+                     "<p class=\"subtitle\" role=\"doc-subtitle\">%s</p>\n"
+                   (concat "\n" (org-html-close-tag "br" nil info) "\n"
+                           "<span class=\"subtitle\">%s</span>\n"))
+                 (org-export-data subtitle info))
+              "")))))
+     contents
+     "</article>\n"
+     (format "</%s>\n" (nth 1 (assq 'content (plist-get info :html-divs))))
+     ;; Postamble.
+     (org-html--build-pre/postamble 'postamble info)
+     ;; Possibly use the Klipse library live code blocks.
+     (when (plist-get info :html-klipsify-src)
+       (concat "<script>" (plist-get info :html-klipse-selection-script)
+               "</script><script src=\""
+               org-html-klipse-js
+               "\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\""
+               org-html-klipse-css "\"/>"))
+     ;; Closing document.
+     "</body>\n</html>"))
+
+  (defun org-blog-inner-template (contents info)
+    "Return body of document string after HTML conversion.
+  CONTENTS is the transcoded contents string.  INFO is a plist
+  holding export options."
+    (concat
+     ;; Table of contents.
+     (let ((depth (plist-get info :with-toc)))
+       (when depth (org-blog-toc depth info)))
+     ;; Document contents.
+     contents
+     ;; Footnotes section.
+     (org-html-footnote-section info)
+     "<footer>\n"
+     "Published <datetime>PUBLISH_DATE</datetime>\n"
+     "</footer>\n"))
+
+  (defun org-blog-toc (depth info &optional scope)
+    "Build a table of contents.
+  DEPTH is an integer specifying the depth of the table.  INFO is
+  a plist used as a communication channel.  Optional argument SCOPE
+  is an element defining the scope of the table.  Return the table
+  of contents as a string, or nil if it is empty."
+    (let ((toc-entries
+       (mapcar (lambda (headline)
+             (cons (org-html--format-toc-headline headline info)
+               (org-export-get-relative-level headline info)))
+           (org-export-collect-headlines info depth scope))))
+      (when toc-entries
+        (let ((toc (concat "<div id=\"text-table-of-contents\" role=\"doc-toc\">"
+               (org-html--toc-text toc-entries)
+               "</div>\n")))
+      (if scope toc
+        (let ((outer-tag (if (org-html--html5-fancy-p info)
+                     "nav"
+                   "div")))
+          (concat (format "<details>\n<summary>Table of Contents</summary>\n<%s id=\"table-of-contents\" role=\"doc-toc\">\n" outer-tag)
+              (let ((top-level (plist-get info :html-toplevel-hlevel)))
+                (format "<h%d>%s</h%d>\n"
+                    top-level
+                    (org-html--translate "Table of Contents" info)
+                    top-level))
+              toc
+              (format "</%s>\n</details>\n" outer-tag))))))))
+#+end_src
+
+#+begin_src emacs-lisp :results none
+  (defun publish-org-to-blog (plist filename pub-dir)
+    "Publish an org file to HTML using my custom blog backend.
+
+  FILENAME is the filename of the Org file to be published.  PLIST
+  is the property list for the given project.  PUB-DIR is the
+  publishing directory.
+
+  Return output file name."
+    (org-publish-org-to 'blog filename
+                        (concat (when (> (length org-html-extension) 0) ".")
+                                (or (plist-get plist :html-extension)
+                                    org-html-extension
+                                    "html"))
+                        plist pub-dir))
+#+end_src
+
+* Blog directory structure etc.
+
+- One git repository, with one org file per blog post
+  - And one file for the blog configuration itself
+- Potentially using git to show a post-publish edit history for each post?
