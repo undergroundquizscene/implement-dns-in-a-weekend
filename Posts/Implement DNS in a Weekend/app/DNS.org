@@ -1,3 +1,6 @@
+:PROPERTIES:
+:PostTags: Haskell, Julia Evans, DNS
+:END:
 #+Title: Implement DNS in a Weekend (in Haskell)
 
 * Part 1: Build a DNS Query
