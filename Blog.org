@@ -190,3 +190,19 @@ I want to control the structure of the html output more than the options on the 
 - One git repository, with one org file per blog post
   - And one file for the blog configuration itself
 - Potentially using git to show a post-publish edit history for each post?
+
+* Tags
+
+I’d like to be able to tag posts to categorise them, with hierarchical tagging, and also get pages for each tag linking to the posts.
+
+* RSS
+
+I’d like to have one or more RSS feeds (one with all the posts, one with all original posts, etc.).
+
+* Publish date from git
+
+I’d like to get the publish date from the git commit that finishes the blog post.
+
+* Edit history
+
+I’d like to be able to get the edit history from git, both for listing edit dates and summaries and maybe for including past versions of posts in the site.
