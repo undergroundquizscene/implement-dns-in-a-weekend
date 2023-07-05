@@ -1,2 +1,8 @@
 /Output/
 /.shake/
+/blog.cabal
+/shell.nix
+/release.nix
+/src/Main.hs
+/blog.nix
+/dist-newstyle/

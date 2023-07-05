@@ -206,3 +206,117 @@ I’d like to get the publish date from the git commit that finishes the blog po
 * Edit history
 
 I’d like to be able to get the edit history from git, both for listing edit dates and summaries and maybe for including past versions of posts in the site.
+
+* Slick
+
+I’ve changed my mind, and would like to use [[https://github.com/ChrisPenner/slick][Slick]] to make the site. Org-publish will require some programming to get what I want out of it (as will Slick, and each other option I’ve looked at) – I’d rather do that programming in Haskell than emacs lisp.
+
+#+begin_src haskell :tangle Main.hs
+  {-# LANGUAGE DeriveGeneric #-}
+  {-# LANGUAGE DeriveAnyClass #-}
+  {-# LANGUAGE OverloadedStrings #-}
+  {-# LANGUAGE BlockArguments #-}
+  {-# LANGUAGE ImportQualifiedPost #-}
+
+  import Control.Lens as Lens
+  import Control.Monad
+  import Data.Aeson.Lens
+  import Data.Aeson
+  import Data.Binary
+  import Data.Text (Text)
+  import Data.Text qualified as Text
+  import Data.Text.IO qualified as Text
+  import Development.Shake
+  import Development.Shake.Forward
+  import Development.Shake.FilePath
+  import GHC.Generics
+  import Slick
+
+  data Post = Post
+    { title :: Text
+    , content :: Text
+    , tags :: [Text]
+    } deriving (Generic, Eq, Ord, Show, FromJSON, ToJSON, Binary)
+
+  buildPosts :: Action [Post]
+  buildPosts = do
+    paths <- getDirectoryFiles "." ["Posts//*.org"]
+    forP paths buildPost
+
+  buildPost :: FilePath -> Action Post
+  buildPost path = cacheAction ("build" :: Text, path) do
+    liftIO (putStrLn ("Rebuilding post: " <> path))
+    rawContent <- readFile' path
+    content' <- orgModeToHTML (Text.pack (rawContent))
+    let tags :: Maybe Value
+        tags = content' ^? (_Object . at "posttags")
+    let content = content' & _Object . at "tags" .~ tags
+    template <- compileTemplate' "Templates/Post.html"
+    writeFile'
+      ("Output" </> makeRelative "Posts" path -<.> ".html")
+      (Text.unpack (substitute template content))
+    convert content
+
+  buildRules :: Action ()
+  buildRules = buildPosts >> return ()
+
+  main :: IO ()
+  main = do
+    let shakeOptions' = forwardOptions (shakeOptions { shakeVerbosity = Chatty
+                                                     , shakeLintInside = ["."]
+                                                     })
+    shakeArgsForward shakeOptions' buildRules
+#+end_src
+
+#+begin_src haskell-cabal :tangle ../blog.cabal
+  cabal-version: 3.6
+  name: blog
+  version: 1.0.0
+
+  executable blog
+    main-is: Main.hs
+    build-depends:
+      base,
+      aeson,
+      binary,
+      containers,
+      directory,
+      extra,
+      lens,
+      lens-aeson,
+      mustache,
+      pandoc,
+      shake,
+      slick,
+      text,
+      time
+    hs-source-dirs:
+      src
+#+end_src
+
+#+begin_src nix :tangle ../shell.nix
+  let
+    pkgs = import <nixpkgs> {};
+  in pkgs.mkShell {
+    packages = [];
+    inputsFrom = [ (import ./release.nix).blog.env ];
+  }
+#+end_src
+
+#+begin_src nix :tangle ../release.nix
+  let
+    pkgs = import <nixpkgs> {};
+  in
+  { blog = pkgs.haskellPackages.callPackage ./blog.nix {};
+  }
+#+end_src
+
+#+begin_src web :tangle ../Templates/Post.html
+  <html>
+    <body>
+      <main>
+        {{{content}}}
+      </main>
+    </body>
+  </html>
+#+end_src

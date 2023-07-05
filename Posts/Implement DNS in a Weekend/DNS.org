@@ -6,7 +6,7 @@
 * Part 1: Build a DNS Query
 ** 1.1: DNSHeader and DNSQuestion Types
 
-My ~DNSHeader~ and ~DNSQuestion~ types are slightly different – I’ve used ~Word16s~ in place of ~ints~ as the values can only be positive, and added more specific types for a few of the fields.
+My ~DNSHeader~ and ~DNSQuestion~ types are slightly different – I used ~Word16s~ in place of ~ints~ as the values can only be positive, and added more specific types for a few of the fields.
 
 #+name: dns-header-data
 #+begin_src haskell
@@ -46,9 +46,152 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
   data QueryOrReply = Query | Reply deriving (Show, Eq)
 #+end_src
 
+Thinking of [[https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/][parse, don’t validate]], I represented a domain as a separated list of labels.
+
+#+name: dns-domain-data
+#+begin_src haskell
+  newtype DNSDomain = DNSDomain [Text]
+    deriving (Show, Eq, Generic)
+#+end_src
+
+** 1.2: Conversions to Bytes
+
+For a replacement for Python’s ~struct.pack~, I’ve used the ~binary~ library. In the simplest cases like ~DNSHeader~, the ~Generic~-derived ~Binary~ instance can be used.
+
+#+name: dns-header-binary-instance
+#+begin_src haskell
+  instance Binary DNSHeader
+#+end_src
+
+For more complicated cases like ~DNSHeaderFlags~ (since I separated the flags out into their own fields and types), a custom instance is necessary.
+
+#+name: dns-header-flags-binary-instance
+#+begin_src haskell
+  instance Binary DNSHeaderFlags where
+    get = do
+      word <- get
+      return DNSHeaderFlags
+        { queryOrReply = word ^. queryOrReply'
+        , recursionDesired = word ^. recursionDesired'
+        }
+    put DNSHeaderFlags{..} = put (zeroBits
+                                 & (queryOrReply' .~ queryOrReply)
+                                 . (recursionDesired' .~ recursionDesired)
+                                 )
+#+end_src
+
+This depends on the lenses ~queryOrReply'~ and ~recursionDesired'~, which map the flags to a bit in a 2-byte word.
+
+#+name: dns-header-flags-lenses
+#+begin_src haskell
+  queryOrReply' :: Lens' Word16 QueryOrReply
+  queryOrReply' = bit 15 . iso fromBool toBool
+    where
+      toBool Query = False
+      toBool Reply = True
+      fromBool = bool Query Reply
+
+  recursionDesired' :: Lens' Word16 Bool
+  recursionDesired' = bit 8
+
+  bit :: Bits w => Int -> Lens' w Bool
+  bit n = lens (flip testBit n) (\word -> bool (clearBit word n) (setBit word n))
+#+end_src
+
+~Binary~ instances always use network order for their encoding, so there’s no need to explicitly specify it.
+
+** 1.3: Encoding and Decoding ~DNSDomains~
+
+For ~DNSDomains~, the encoding and decoding is more complicated, so I used the underlying ~Get~ and ~Put~ monads rather than the ~Binary~ class. Getting and putting individual fragments and uncompressed domains is straightforward, reading or writing a length prefix and then the data of that length. (~getDomainFragment~ also returns the location the fragment was read at, to facilitate the domain name compression.)
+
+#+name: get-and-put-domain-fragment
+#+begin_src haskell
+  getDomainFragment :: Get (Maybe (Int64, Either UnicodeException Text))
+  getDomainFragment = do
+    location <- bytesRead
+    LengthPrefixed{..} <- get @(LengthPrefixed Word8)
+    return (if ByteString.null data_
+      then Nothing
+      else (Just (location, decodeUtf8' data_)))
+
+  putUncompressedDomain :: DNSDomain -> Put
+  putUncompressedDomain (DNSDomain fragments) = do
+    let putFragment f =
+          put (lengthPrefixed @Word8 (encodeUtf8 f))
+    _ <- traverse putFragment fragments
+    put (zeroBits :: Word8)
+#+end_src
+
+For length-prefixed bytestrings (with different size types for representing the length), I made a wrapper type ~LengthPrefixed~.
+
+#+name: length-prefixed
+#+begin_src haskell
+  lengthPrefixed :: Num l => ByteString -> LengthPrefixed l
+  lengthPrefixed data_ = let
+    length = fromIntegral (ByteString.length data_)
+    in LengthPrefixed{..}
+
+  data LengthPrefixed l = LengthPrefixed
+    { length :: l
+    , data_ :: ByteString
+    }
+    deriving (Show, Eq, Generic)
+
+  instance (Binary l, Integral l) => Binary (LengthPrefixed l) where
+    get = do
+      numberOfBytes <- get
+      bytes <- replicateM (fromIntegral numberOfBytes) get
+      return (LengthPrefixed numberOfBytes (ByteString.pack bytes))
+
+    put (LengthPrefixed l bs) = do
+      put l
+      putByteString bs
+#+end_src
+
+*** ~DNSDomain~ Compression
+
+Implementing compression for domain names in a purely functional manner was fun: instead of following a pointer to earlier in the buffer and reading there, I kept a map of all domain names read so far keyed by their position in the buffer, reading out of that when encountering a pointer. (This won’t work if the pointer points to a later position in the buffer, but that situation never came up. Maybe it’s not allowed by the spec, or maybe it’s just rare?)
+
+#+name: get-domain
+#+begin_src haskell
+  type WithDomainCache a = State (Map Word16 DNSDomain) a
+
+  getDomain :: Get (WithDomainCache ([UnicodeException], DNSDomain))
+  getDomain = do
+    length <- lookAhead getWord8
+    if testBit length 7 && testBit length 6
+    then do
+      f <- followDomainPointer
+      return (state (\m -> (([], f m), m)))
+    else
+      getDomainFragment >>=
+        (\case
+          Nothing -> return (return ([], DNSDomain []))
+          Just (location, fragment) -> do
+            f <- getDomain
+            return do
+              (es, DNSDomain tail) <- f
+              case fragment of
+                Left e -> do
+                  modify (Map.insert (fromIntegral location) (DNSDomain tail))
+                  return (e : es, DNSDomain tail)
+                Right text -> do
+                  let newDomain = DNSDomain (text : tail)
+                  modify (Map.insert (fromIntegral location) newDomain)
+                  return (es, newDomain))
+
+  followDomainPointer :: HasCallStack => Get (Map Word16 DNSDomain -> DNSDomain)
+  followDomainPointer = do
+    w :: Word16 <- get
+    let pointer = w `clearBit` 15 `clearBit` 14
+    return (\map ->
+              fromMaybe (error ("Couldn't find location " <> show pointer <> " in domain map: " <> show map))
+              (Map.lookup pointer map))
+#+end_src
+
 * Main file
 
-#+begin_src haskell :tangle Main.hs :noweb yes
+#+begin_src haskell :tangle app/Main.hs :noweb yes
   {-# LANGUAGE DataKinds #-}
   {-# LANGUAGE LambdaCase #-}
   {-# LANGUAGE TypeApplications #-}
@@ -72,7 +215,6 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
   import Data.Bool
   import Data.ByteString hiding (split, length, tail)
   import Data.ByteString qualified as ByteString
-  import Data.Either
   import Data.Foldable hiding (length)
   import Data.Generics.Product (field)
   import Data.Int
@@ -145,7 +287,11 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
     sendAll s query
     response <- recv s 1024
     _ <- close s
-    return (bimap (^. _3) (^. _3) (decodeOrFail @DNSPacket (fromStrict response)), gen')
+    let result = case runGetOrFail getDNSPacket (fromStrict response) of
+          Left (_, _, e) -> Left e
+          Right (_, _, ([], p)) -> Right p
+          Right (_, _, (es, _)) -> Left ("Got UnicodeExceptions processing domain names: " <> show es)
+    return (result, gen')
 
   data DNSPacket = DNSPacket
     { header :: DNSHeader
@@ -155,60 +301,42 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
     , additionals :: [DNSRecord]
     } deriving (Show, Eq, Generic)
 
-  instance Binary DNSPacket where
-    get = do
-      header@DNSHeader{..} <- get
-      getQuestions <- replicateM (fromIntegral numQuestions) getDNSQuestion
-      getAnswers <- replicateM (fromIntegral numAnswers) getDNSRecord
-      getAuthorities <- replicateM (fromIntegral numAuthorities) getDNSRecord
-      getAdditionals <- replicateM (fromIntegral numAdditionals) getDNSRecord
-      return (fst (flip runState Map.empty do
-        questions <- sequence getQuestions
-        answers <- sequence getAnswers
-        authorities <- sequence getAuthorities
-        additionals <- sequence getAdditionals
-        return DNSPacket{..}))
+  getDNSPacket :: Get ([UnicodeException], DNSPacket)
+  getDNSPacket = do
+    header@DNSHeader{..} <- get
+    getQuestions <- replicateM (fromIntegral numQuestions) getDNSQuestion
+    getAnswers <- replicateM (fromIntegral numAnswers) getDNSRecord
+    getAuthorities <- replicateM (fromIntegral numAuthorities) getDNSRecord
+    getAdditionals <- replicateM (fromIntegral numAdditionals) getDNSRecord
+    let
+      splitErrors :: [([UnicodeException], a)] -> ([UnicodeException], [a])
+      splitErrors xs = (foldMap fst xs, foldMap ((: []) . snd) xs)
+    return (fst (flip runState Map.empty do
+      (questionErrors, questions) <- splitErrors <$> sequence getQuestions
+      (answerErrors, answers) <- splitErrors <$> sequence getAnswers
+      (authorityErrors, authorities) <- splitErrors <$> sequence getAuthorities
+      (additionalErrors, additionals) <- splitErrors <$> sequence getAdditionals
+      let errors = questionErrors <> answerErrors <> authorityErrors <> additionalErrors
+      return (errors, DNSPacket{..})))
 
-    put DNSPacket{..} = do
-      put header
-      foldMap putDNSQuestion questions
-      foldMap putDNSRecord answers
-      foldMap putDNSRecord authorities
-      foldMap putDNSRecord additionals
+    -- put DNSPacket{..} = do
+    --   put header
+    --   foldMap putDNSQuestion questions
+    --   foldMap putDNSRecord answers
+    --   foldMap putDNSRecord authorities
+    --   foldMap putDNSRecord additionals
 
   <<dns-header-data>>
 
-  instance Binary DNSHeader where
+  <<dns-header-binary-instance>>
 
   <<dns-header-flags-data>>
 
-  instance Binary DNSHeaderFlags where
-    get = (^. from flagsAsWord16) <$> get
-    put = put . (^. flagsAsWord16)
-
-  flagsAsWord16 :: Iso' DNSHeaderFlags Word16
-  flagsAsWord16 = iso
-    (\DNSHeaderFlags{..} ->
-       zeroBits
-       & (queryOrReply' .~ queryOrReply)
-       . (recursionDesired' .~ recursionDesired)
-     )
-    (\w -> DNSHeaderFlags (w ^. queryOrReply') (w ^. recursionDesired'))
+  <<dns-header-flags-binary-instance>>
 
   <<query-or-reply-data>>
 
-  queryOrReply' :: Lens' Word16 QueryOrReply
-  queryOrReply' = bit 15 . iso fromBool toBool
-    where
-      toBool Query = False
-      toBool Reply = True
-      fromBool = bool Query Reply
-
-  recursionDesired' :: Lens' Word16 Bool
-  recursionDesired' = bit 8
-
-  bit :: Bits w => Int -> Lens' w Bool
-  bit n = lens (flip testBit n) (\word -> bool (clearBit word n) (setBit word n))
+  <<dns-header-flags-lenses>>
 
   <<dns-question-data>>
 
@@ -218,99 +346,34 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
     putRecordType type_
     put class_
 
-  getDNSQuestion :: Get (WithDomainCache DNSQuestion)
+  getDNSQuestion :: Get (WithDomainCache ([UnicodeException], DNSQuestion))
   getDNSQuestion = do
     f <- getDomain
     type_ <- getRecordType
     class_ <- get
     return do
-      name <- f
-      return DNSQuestion{..}
+      (errors, name) <- f
+      return (errors, DNSQuestion{..})
 
   classIn :: Word16
   classIn = 1
 
-  type WithDomainCache a = State (Map Word16 DNSDomain) a
-
-  newtype DNSDomain = DNSDomain [Either UnicodeException Text]
-    deriving (Show, Eq, Generic)
+  <<dns-domain-data>>
 
   domainFromText :: Text -> DNSDomain
-  domainFromText = Text.splitOn "." >>> (DNSDomain . fmap Right)
+  domainFromText = Text.splitOn "." >>> DNSDomain
 
-  domainToText :: DNSDomain -> Either ([UnicodeException], [Text]) Text
-  domainToText (DNSDomain fs) = case partitionEithers fs of
-    ([], ts) -> Right (mconcat (List.intersperse "." ts))
-    t -> Left t
+  domainToText :: DNSDomain -> Text
+  domainToText (DNSDomain ts) = mconcat (List.intersperse "." ts)
 
   showDomain :: DNSDomain -> String
-  showDomain = either show Text.unpack . domainToText
+  showDomain = Text.unpack . domainToText
 
-  putUncompressedDomain :: DNSDomain -> Put
-  putUncompressedDomain (DNSDomain fragments) = do
-    let putFragment f =
-          put (lengthPrefixed @Word8 (encodeUtf8 f))
-    _ <- traverse putFragment (rights fragments)
-    put (zeroBits :: Word8)
+  <<get-and-put-domain-fragment>>
 
-  getDomainFragment :: Get (Maybe (Int64, Either UnicodeException Text))
-  getDomainFragment = do
-    location <- bytesRead
-    LengthPrefixed{..} <- get @(LengthPrefixed Word8)
-    if ByteString.null data_
-    then return Nothing
-    else return (Just (location, decodeUtf8' data_))
+  <<get-domain>>
 
-  followDomainPointer :: HasCallStack => Get (Map Word16 DNSDomain -> DNSDomain)
-  followDomainPointer = do
-    w :: Word16 <- get
-    let pointer = w `clearBit` 15 `clearBit` 14
-    return (\map ->
-              fromMaybe (error ("Couldn't find location " <> show pointer <> " in domain map: " <> show map))
-              (Map.lookup pointer map))
-
-  getDomain :: Get (WithDomainCache DNSDomain)
-  getDomain = do
-    length <- lookAhead getWord8
-    if testBit length 7 && testBit length 6
-    then do
-      f <- followDomainPointer
-      return (state (\m -> (f m, m)))
-    else
-      getDomainFragment >>=
-        (\case
-          Nothing -> return (return (DNSDomain []))
-          Just (location, fragment) -> do
-            f <- getDomain
-            return do
-              DNSDomain tail <- f
-              let newDomain = DNSDomain (fragment : tail)
-              modify (Map.insert (fromIntegral location) newDomain)
-              return newDomain)
-
-  lengthPrefixed :: Num l => ByteString -> LengthPrefixed l
-  lengthPrefixed data_ = let
-    length = fromIntegral (ByteString.length data_)
-    in LengthPrefixed{..}
-
-  data LengthPrefixed l = LengthPrefixed
-    { length :: l
-    , data_ :: ByteString
-    }
-    deriving (Show, Eq, Generic)
-
-  instance (Binary l, Integral l) => Binary (LengthPrefixed l) where
-    get = do
-      numberOfBytes <- get
-      if numberOfBytes == 0
-      then return (LengthPrefixed numberOfBytes "")
-      else do
-        bytes <- replicateM (fromIntegral numberOfBytes) get
-        return (LengthPrefixed numberOfBytes (ByteString.pack bytes))
-
-    put (LengthPrefixed l bs) = do
-      put l
-      putByteString bs
+  <<length-prefixed>>
 
   buildQuery :: RandomGen g => g -> DNSDomain -> RecordType -> (ByteString, g)
   buildQuery gen domain recordType = let
@@ -334,27 +397,27 @@ Using an explicit sum type for ~QueryOrReply~ (rather than a ~Boolean~) made it 
     , data_ :: RecordData
     } deriving (Show, Eq, Generic)
 
-  getDNSRecord :: Get (WithDomainCache DNSRecord)
+  getDNSRecord :: Get (WithDomainCache ([UnicodeException], DNSRecord))
   getDNSRecord = do
     getName <- getDomain
     type_ <- getRecordType
     class_ <- get
     ttl <- get
     getData_ <- case type_ of
-      NS -> skip 2 *> (fmap DomainName <$> getDomain)
-      CNAME -> skip 2 *> (fmap DomainName <$> getDomain)
+      NS -> skip 2 *> (fmap (fmap DomainName) <$> getDomain)
+      CNAME -> skip 2 *> (fmap (fmap DomainName) <$> getDomain)
       A -> do
         addressLength <- get @Word16
         case addressLength of
-          4 -> (return . IPv4) <$> ((,,,) <$> get <*> get <*> get <*> get)
+          4 -> (return . ([], ) . IPv4) <$> ((,,,) <$> get <*> get <*> get <*> get)
           _ -> error "Unexpected IP Address length"
-      AAAA -> (return . IPv6) <$> get
-      TXT -> (return . RawData) <$> get
-      UnrecognisedType _ -> (return . RawData) <$> get
+      AAAA -> (return . ([], ) . IPv6) <$> get
+      TXT -> (return . ([], ) . RawData) <$> get
+      UnrecognisedType _ -> (return . ([], ) . RawData) <$> get
     return do
-      name <- getName
-      data_ <- getData_
-      return DNSRecord{..}
+      (errors, name) <- getName
+      (moreErrors, data_) <- getData_
+      return (errors <> moreErrors, DNSRecord{..})
 
   putDNSRecord :: DNSRecord -> Put
   putDNSRecord DNSRecord{..} = do
